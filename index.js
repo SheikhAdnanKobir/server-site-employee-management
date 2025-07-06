@@ -15,6 +15,10 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster1.1xr6tjf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`;
 
+const verifytoken = (req, res, next) =>{
+    next();
+}
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -31,6 +35,17 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+    const employeeCollection = client.db('employeeManagement').collection('employees');
+    const userCollection = client.db('employeeManagement').collection('users');
+    
+    // create token
+    app.post('jwt',(req,res)=>{
+        const user = req.body;
+        const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+        res.send({token});
+    })
+
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -48,11 +63,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-echo "# server-site-employee-management" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/SheikhAdnanKobir/server-site-employee-management.git
-git push -u origin main
