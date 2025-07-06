@@ -38,6 +38,29 @@ async function run() {
 
     const employeeCollection = client.db('employeeManagement').collection('employees');
     const userCollection = client.db('employeeManagement').collection('users');
+
+    //verify token
+    const verifyToken = (req, res, next) => {
+        if(!req.headers.authorization){
+            return res.status(401).send({message: 'unauthorized access'});
+        }
+        const token = req.headers.authorization.split(' ')[1];
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded)=>{
+            if(err){
+                return res.status(403).send({message: 'Forbidden access'});
+            }
+            req.decoded = decoded;
+            next();
+        })
+    }
+
+    // get login employees data
+    app.get('users',async(req,res)=>{
+        const email=req.query.email;
+        const query={email:email};
+        const result= await userCollection.find(query).toArray();
+        res.send(result);
+    })
     
     // create token
     app.post('jwt',(req,res)=>{
