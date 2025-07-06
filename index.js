@@ -66,7 +66,7 @@ async function run() {
         next();
     }
 
-    // get login employees data
+    // get employees user login  data
     app.get('users',async(req,res)=>{
         const email=req.query.email;
         const query={email:email};
