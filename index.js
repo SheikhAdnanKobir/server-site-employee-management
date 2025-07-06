@@ -54,6 +54,18 @@ async function run() {
         })
     }
 
+    //verify admin
+    const verifyAdmin = async (req, res, next) =>{
+        const email = req.decoded.email;
+        const query={emaill:email};
+        const user = await userCollection.findOne(query);
+        const isAdmin = user?.role === 'admin';
+        if(!isAdmin){
+            return res.status(404).send({message: 'Forbidden access'});
+        }
+        next();
+    }
+
     // get login employees data
     app.get('users',async(req,res)=>{
         const email=req.query.email;
